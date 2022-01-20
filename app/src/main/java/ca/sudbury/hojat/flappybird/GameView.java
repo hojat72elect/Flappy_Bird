@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 
 public class GameView extends View {
+    private Bird bird;
 
     /**
      * This View is what we draw on Screen when the game starts.
@@ -17,6 +18,7 @@ public class GameView extends View {
      */
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+
     }
 
     @Override
