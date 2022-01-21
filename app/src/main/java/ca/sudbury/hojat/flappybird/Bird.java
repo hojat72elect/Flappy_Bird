@@ -15,7 +15,16 @@ public class Bird extends BaseObject {
     //an array of all the bitmaps that show the bird in various situations.
     private ArrayList<Bitmap> arrBms = new ArrayList<>();
 
+    private int count//the number of iterations.
+            , vFlap//if (count == vFlap) then Bird's Bitmap will be changed.
+            , idCurrentBitmap//id of the Bitmap currently shown on screen
+            ;
+
     public Bird() {
+        this.count = 0;
+        this.vFlap = 5;
+        this.idCurrentBitmap = 0;
+
     }
 
     //drawing the bird's Bitmap on the Canvas.
@@ -46,6 +55,22 @@ public class Bird extends BaseObject {
      */
     @Override
     public Bitmap getBm() {
-        return this.getArrBms().get(0);
+        //each time Bitmap is refreshed, we count it.
+        count++;
+        if (this.count == this.vFlap) {
+            //the bitmap needs to be updated
+            for (int i = 0; i < arrBms.size(); i++) {
+                if (i == arrBms.size() - 1) {
+                    this.idCurrentBitmap = 0;
+                    break;
+                } else if (this.idCurrentBitmap == i) {
+                    idCurrentBitmap = i + 1;
+                    break;
+                }
+            }
+            count = 0;
+        }
+
+        return this.arrBms.get(idCurrentBitmap);
     }
 }

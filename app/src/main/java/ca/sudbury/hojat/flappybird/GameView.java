@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -13,6 +14,10 @@ import java.util.ArrayList;
 
 public class GameView extends View {
     private Bird bird;
+
+
+    private Handler handler;
+    private Runnable r;
 
     /**
      * This View is what we draw on Screen when the game starts.
@@ -40,11 +45,21 @@ public class GameView extends View {
         bird.setArrBms(arrBms);
 
 
+        //boilerplate code for the handler
+        handler = new Handler();
+        r = new Runnable() {
+            @Override
+            public void run() {
+                invalidate();/*Invalidate the whole view. we need to invalidate this view
+                                before calling the draw() method again.*/
+            }
+        };
     }
 
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
         bird.draw(canvas);//initial drawing of the bird on screen.
+        handler.postDelayed(r, 10);//the handler will be called each 10 milliseconds.
     }
 }
