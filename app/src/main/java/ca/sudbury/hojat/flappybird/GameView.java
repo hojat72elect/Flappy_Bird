@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -61,5 +62,19 @@ public class GameView extends View {
         super.draw(canvas);
         bird.draw(canvas);//initial drawing of the bird on screen.
         handler.postDelayed(r, 10);//the handler will be called each 10 milliseconds.
+    }
+
+    /**
+     * managing touch events on the game's screen.
+     *
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            bird.setDrop(-15);
+        }
+        return true;
     }
 }
