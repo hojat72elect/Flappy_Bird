@@ -15,10 +15,12 @@ import java.util.ArrayList;
 
 public class GameView extends View {
     private Bird bird;
-
-
     private Handler handler;
     private Runnable r;
+    private ArrayList<Pipe> arrPipes;
+    private int sumPipes;
+    private int distance;//the distance between pipes, the gap that the bird flies through
+
 
     /**
      * This View is what we draw on Screen when the game starts.
@@ -28,7 +30,42 @@ public class GameView extends View {
      */
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        //creating the bird object.
+        initBird();
+        initPipe();
+        //boilerplate code for the handler
+        handler = new Handler();
+        r = new Runnable() {
+            @Override
+            public void run() {
+                invalidate();/*Invalidate the whole view. we need to invalidate this view
+                                before calling the draw() method again.*/
+            }
+        };
+    }
+
+    private void initPipe() {
+
+        sumPipes = 6;
+        distance = 300 * Constants.SCREEN_HEIGHT / 1920;
+        arrPipes = new ArrayList<>();
+        for (int i = 0; i < sumPipes; i++) {
+            if (i < sumPipes / 2) {
+                this.arrPipes.add(new Pipe(Constants.SCREEN_WIDTH + i * ((Constants.SCREEN_WIDTH + 200.0f * Constants.SCREEN_WIDTH / 1080) / (sumPipes / 2.0f)), 0.0f, 200 * Constants.SCREEN_WIDTH / 1080, Constants.SCREEN_HEIGHT / 2));
+                this.arrPipes.get(this.arrPipes.size() - 1).setBm(BitmapFactory.decodeResource(this.getResources(), R.drawable.pipe2));
+                this.arrPipes.get(this.arrPipes.size() - 1).randomY();
+            } else {
+                this.arrPipes.add(new Pipe(
+                        this.arrPipes.get(i - sumPipes / 2).getX(),
+                        this.arrPipes.get(i - sumPipes / 2).getY() + this.arrPipes.get(i - sumPipes / 2).getHeight() + this.distance,
+                        Constants.SCREEN_WIDTH / 1080,
+                        200 * Constants.SCREEN_HEIGHT / 2));
+                this.arrPipes.get(this.arrPipes.size() - 1).setBm(BitmapFactory.decodeResource(this.getResources(), R.drawable.pipe1));
+
+            }
+        }
+    }
+
+    private void initBird() {
         bird = new Bird();
 
         //setting the width and height of the bird.
@@ -44,23 +81,23 @@ public class GameView extends View {
         arrBms.add(BitmapFactory.decodeResource(this.getResources(), R.drawable.bird1));
         arrBms.add(BitmapFactory.decodeResource(this.getResources(), R.drawable.bird2));
         bird.setArrBms(arrBms);
-
-
-        //boilerplate code for the handler
-        handler = new Handler();
-        r = new Runnable() {
-            @Override
-            public void run() {
-                invalidate();/*Invalidate the whole view. we need to invalidate this view
-                                before calling the draw() method again.*/
-            }
-        };
     }
 
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
         bird.draw(canvas);//initial drawing of the bird on screen.
+        for (int i = 0; i < sumPipes; i++) {
+            if (this.arrPipes.get(i).getX() < -arrPipes.get(i).getWidth()) {
+                this.arrPipes.get(i).setX(Constants.SCREEN_WIDTH);
+                if (i < sumPipes / 2) {
+                    arrPipes.get(i).randomY();
+                } else {
+                    arrPipes.get(i).setY(this.arrPipes.get(i - sumPipes / 2).getY() + this.arrPipes.get(i - sumPipes / 2).getHeight() + this.distance);
+                }
+            }
+            this.arrPipes.get(i).draw(canvas);
+        }
         handler.postDelayed(r, 10);//the handler will be called each 10 milliseconds.
     }
 
@@ -78,3 +115,14 @@ public class GameView extends View {
         return true;
     }
 }
+
+
+/*
+ *
+ *
+ *  //creating the bird object.
+
+
+ *
+ *
+ * */
