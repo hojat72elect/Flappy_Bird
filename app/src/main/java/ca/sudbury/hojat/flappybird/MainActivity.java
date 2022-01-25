@@ -3,10 +3,13 @@ package ca.sudbury.hojat.flappybird;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static TextView txt_score;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,5 +23,7 @@ public class MainActivity extends AppCompatActivity {
         Constants.SCREEN_WIDTH = dm.widthPixels;
 
         setContentView(R.layout.activity_main);
+
+        txt_score = findViewById(R.id.text_score);
     }
 }

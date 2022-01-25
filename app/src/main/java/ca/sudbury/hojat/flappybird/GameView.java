@@ -20,6 +20,7 @@ public class GameView extends View {
     private ArrayList<Pipe> arrPipes;
     private int sumPipes;
     private int distance;//the distance between pipes, the gap that the bird flies through
+    private int score;
 
 
     /**
@@ -30,6 +31,7 @@ public class GameView extends View {
      */
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        score = 0;
         initBird();
         initPipe();
         //boilerplate code for the handler
@@ -88,6 +90,12 @@ public class GameView extends View {
         super.draw(canvas);
         bird.draw(canvas);//initial drawing of the bird on screen.
         for (int i = 0; i < sumPipes; i++) {
+            if (this.bird.getX() + this.bird.getWidth() > arrPipes.get(i).getX() + arrPipes.get(i).getWidth() / 2.0f
+                    && this.bird.getX() + this.bird.getWidth() <= arrPipes.get(i).getX() + arrPipes.get(i).getWidth() / 2.0f + Pipe.speed
+                    && i < sumPipes / 2) {
+                score++;
+                MainActivity.txt_score.setText("" + score);
+            }
             if (this.arrPipes.get(i).getX() < -arrPipes.get(i).getWidth()) {
                 this.arrPipes.get(i).setX(Constants.SCREEN_WIDTH);
                 if (i < sumPipes / 2) {
@@ -98,7 +106,7 @@ public class GameView extends View {
             }
             this.arrPipes.get(i).draw(canvas);
         }
-        handler.postDelayed(r, 10);//the handler will be called each 10 milliseconds.
+        handler.postDelayed(r, 10);//the runnable will be called each 10 milliseconds.
     }
 
     /**
