@@ -20,7 +20,8 @@ public class GameView extends View {
     private ArrayList<Pipe> arrPipes;
     private int sumPipes;
     private int distance;//the distance between pipes, the gap that the bird flies through
-    private int score;
+    private int score, bestScore;
+    private boolean start;
 
 
     /**
@@ -32,6 +33,8 @@ public class GameView extends View {
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         score = 0;
+        bestScore = 0;
+        start = false;
         initBird();
         initPipe();
         //boilerplate code for the handler
@@ -88,23 +91,40 @@ public class GameView extends View {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        bird.draw(canvas);//initial drawing of the bird on screen.
-        for (int i = 0; i < sumPipes; i++) {
-            if (this.bird.getX() + this.bird.getWidth() > arrPipes.get(i).getX() + arrPipes.get(i).getWidth() / 2.0f
-                    && this.bird.getX() + this.bird.getWidth() <= arrPipes.get(i).getX() + arrPipes.get(i).getWidth() / 2.0f + Pipe.speed
-                    && i < sumPipes / 2) {
-                score++;
-                MainActivity.txt_score.setText("" + score);
-            }
-            if (this.arrPipes.get(i).getX() < -arrPipes.get(i).getWidth()) {
-                this.arrPipes.get(i).setX(Constants.SCREEN_WIDTH);
-                if (i < sumPipes / 2) {
-                    arrPipes.get(i).randomY();
-                } else {
-                    arrPipes.get(i).setY(this.arrPipes.get(i - sumPipes / 2).getY() + this.arrPipes.get(i - sumPipes / 2).getHeight() + this.distance);
+        //if(start) then we will draw the bird and the rest of the game.
+        if (start) {
+            bird.draw(canvas);//initial drawing of the bird on screen.
+            for (int i = 0; i < sumPipes; i++) {
+                //if the bird collides with pipes, then show game over:
+                if (bird.getRect().intersect(arrPipes.get(i).getRect()) || bird.getY() - bird.getHeight() < 0 || bird.getY() > Constants.SCREEN_HEIGHT) {
+                    Pipe.speed = 0;
+                    MainActivity.txt_score_over.setText(MainActivity.txt_score.getText());
+                    MainActivity.txt_best_score.setText("best: " + bestScore);
+                    MainActivity.txt_score.setVisibility(INVISIBLE);
+                    MainActivity.rl_game_over.setVisibility(VISIBLE);
                 }
+                if (this.bird.getX() + this.bird.getWidth() > arrPipes.get(i).getX() + arrPipes.get(i).getWidth() / 2f
+                        && this.bird.getX() + this.bird.getWidth() <= arrPipes.get(i).getX() + arrPipes.get(i).getWidth() / 2.0f + Pipe.speed
+                        && i < sumPipes / 2) {
+                    score++;
+                    MainActivity.txt_score.setText("" + score);
+                }
+                if (this.arrPipes.get(i).getX() < -arrPipes.get(i).getWidth()) {
+                    this.arrPipes.get(i).setX(Constants.SCREEN_WIDTH);
+                    if (i < sumPipes / 2) {
+                        arrPipes.get(i).randomY();
+                    } else {
+                        arrPipes.get(i).setY(this.arrPipes.get(i - sumPipes / 2).getY() + this.arrPipes.get(i - sumPipes / 2).getHeight() + this.distance);
+                    }
+                }
+                this.arrPipes.get(i).draw(canvas);
             }
-            this.arrPipes.get(i).draw(canvas);
+        } else {
+            //the user has not clicked on the start button yet:
+            if (bird.getY() > Constants.SCREEN_HEIGHT / 2f) {
+                bird.setDrop(-15 * Constants.SCREEN_HEIGHT / 1920f);
+            }
+            bird.draw(canvas);
         }
         handler.postDelayed(r, 10);//the runnable will be called each 10 milliseconds.
     }
@@ -122,15 +142,22 @@ public class GameView extends View {
         }
         return true;
     }
+
+    public boolean isStart() {
+        return start;
+    }
+
+    public void setStart(boolean start) {
+        this.start = start;
+    }
+
+    /**
+     * Resetting the game from a game over situation.
+     */
+    public void reset() {
+        MainActivity.txt_score.setText("0");
+        score = 0;
+        initPipe();
+        initBird();
+    }
 }
-
-
-/*
- *
- *
- *  //creating the bird object.
-
-
- *
- *
- * */
