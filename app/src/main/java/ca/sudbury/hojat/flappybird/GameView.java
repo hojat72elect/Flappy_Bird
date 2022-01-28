@@ -1,6 +1,7 @@
 package ca.sudbury.hojat.flappybird;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -20,8 +21,9 @@ public class GameView extends View {
     private ArrayList<Pipe> arrPipes;
     private int sumPipes;
     private int distance;//the distance between pipes, the gap that the bird flies through
-    private int score, bestScore;
+    private int score, bestScore = 0;
     private boolean start;
+    private Context context;
 
 
     /**
@@ -32,8 +34,15 @@ public class GameView extends View {
      */
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
+
+        //Loading the highest score at the beginning of the game
+        SharedPreferences sp = context.getSharedPreferences("gamesetting", Context.MODE_PRIVATE);
+        if (sp != null) {
+            bestScore = sp.getInt("bestscore", 0);
+        }
+
         score = 0;
-        bestScore = 0;
         start = false;
         initBird();
         initPipe();
@@ -107,6 +116,15 @@ public class GameView extends View {
                         && this.bird.getX() + this.bird.getWidth() <= arrPipes.get(i).getX() + arrPipes.get(i).getWidth() / 2.0f + Pipe.speed
                         && i < sumPipes / 2) {
                     score++;
+                    if (score > bestScore) {
+                        //the highest score will be saved in a SharedPreferences;
+                        bestScore = score;
+                        SharedPreferences sp = context.getSharedPreferences("gamesetting", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.putInt("bestscore", bestScore);
+                        editor.apply();
+                    }
+
                     MainActivity.txt_score.setText("" + score);
                 }
                 if (this.arrPipes.get(i).getX() < -arrPipes.get(i).getWidth()) {
