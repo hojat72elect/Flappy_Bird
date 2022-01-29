@@ -1,5 +1,6 @@
 package ca.sudbury.hojat.flappybird;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -16,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     public static RelativeLayout rl_game_over;
     public static Button btn_start;
     private GameView gv;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,5 +56,26 @@ public class MainActivity extends AppCompatActivity {
                 gv.reset();
             }
         });
+
+        // loads the background song and starts playing it
+        mediaPlayer = MediaPlayer
+                .create(this, R.raw.sillycheapsong);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // The activity starts interacting with the user
+        mediaPlayer.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // This activity loses foreground state
+        mediaPlayer.pause();
     }
 }

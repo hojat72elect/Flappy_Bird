@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -24,7 +26,10 @@ public class GameView extends View {
     private int score, bestScore = 0;
     private boolean start;
     private Context context;
-
+    private int soundJump; // each sound in the game has an int ID (which we use to play or unload the sound).
+    private float volume;
+    private boolean loadedSound;
+    private SoundPool soundPool;
 
     /**
      * This View is what we draw on Screen when the game starts.
@@ -55,6 +60,22 @@ public class GameView extends View {
                                 before calling the draw() method again.*/
             }
         };
+        //loading the sounds
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME) // the usage of this sound is for game
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+        SoundPool.Builder builder = new SoundPool.Builder();
+        builder.setAudioAttributes(audioAttributes).setMaxStreams(5);
+        this.soundPool = builder.build();
+        this.soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                loadedSound = true; // After the sound is completely loaded
+            }
+        });
+        // Load the sound into the "soundJump" object
+        soundJump = this.soundPool.load(context, R.raw.jump_02, 1);
     }
 
     private void initPipe() {
@@ -156,7 +177,11 @@ public class GameView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            bird.setDrop(-15);
+            bird.setDrop(-15); // the bird goes up.
+            if (loadedSound) { //play the jump sound.
+                this.soundPool.play(this.soundJump, 0.5f, 0.5f, 1, 0, 1f);
+                // the streamID returned by this method can be used for further controlling the sound but I don't need it for now.
+            }
         }
         return true;
     }
